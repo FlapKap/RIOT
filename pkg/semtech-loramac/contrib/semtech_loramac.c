@@ -57,7 +57,7 @@
 
 #define LORAMAC_RX_BUFFER_SIZE                      (256U)
 #define SEMTECH_LORAMAC_MSG_QUEUE                   (4U)
-#define SEMTECH_LORAMAC_LORAMAC_STACKSIZE           (THREAD_STACKSIZE_DEFAULT)
+#define SEMTECH_LORAMAC_LORAMAC_STACKSIZE           (THREAD_STACKSIZE_DEFAULT*2)
 static msg_t _semtech_loramac_msg_queue[SEMTECH_LORAMAC_MSG_QUEUE];
 static char _semtech_loramac_stack[SEMTECH_LORAMAC_LORAMAC_STACKSIZE];
 kernel_pid_t semtech_loramac_pid;
@@ -196,7 +196,7 @@ static void mlme_indication(MlmeIndication_t *indication)
 }
 
 #ifdef MODULE_PERIPH_EEPROM
-static size_t _read_uint32(size_t pos, uint32_t *value)
+static inline size_t _read_uint32(size_t pos, uint32_t *value)
 {
     uint8_t array[4] = { 0 };
     size_t ret = eeprom_read(pos, array, sizeof(uint32_t));
@@ -206,7 +206,7 @@ static size_t _read_uint32(size_t pos, uint32_t *value)
     return ret;
 }
 
-static size_t _write_uint32(size_t pos, uint32_t value)
+static inline size_t _write_uint32(size_t pos, uint32_t value)
 {
     uint8_t array[4] = { 0 };
 
