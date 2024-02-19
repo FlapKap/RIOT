@@ -540,7 +540,7 @@ void semtech_loramac_get_channels_mask(semtech_loramac_t *mac, uint16_t *mask);
  * @brief   The magic number length used to identify the LoRaWAN configuration
  */
 #ifndef SEMTECH_LORAMAC_EEPROM_MAGIC_LEN
-#define SEMTECH_LORAMAC_EEPROM_MAGIC_LEN    4
+#define SEMTECH_LORAMAC_EEPROM_MAGIC_LEN    (4)
 #endif
 
 /**
@@ -548,6 +548,19 @@ void semtech_loramac_get_channels_mask(semtech_loramac_t *mac, uint16_t *mask);
  */
 #ifndef SEMTECH_LORAMAC_EEPROM_START
 #define SEMTECH_LORAMAC_EEPROM_START        (0)
+#endif
+
+#ifdef MODULE_PERIPH_RTC_MEM
+
+/**
+ * @brief   The offset of the RTC memory used to store the uplink counter
+ *          We store the uplink counter seperately if we can since this
+ *          changes on every uplink and we want to avoid writing to 
+ *          eeprom to prevent wear.
+ */
+#ifndef SEMTECH_LORAMAC_RTC_MEM_OFFSET 
+#define SEMTECH_LORAMAC_RTC_MEM_OFFSET      (0)
+#endif
 #endif
 
 /**

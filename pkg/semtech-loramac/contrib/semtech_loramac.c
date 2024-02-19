@@ -48,6 +48,12 @@
 #include "periph/eeprom.h"
 #endif
 
+#ifdef MODULE_PERIPH_RTC_MEM
+#include "periph/rtc_mem.h"
+#endif
+
+
+
 #define ENABLE_DEBUG 0
 #include "debug.h"
 
@@ -250,8 +256,12 @@ static inline void _read_loramac_config(semtech_loramac_t *mac)
 
     /* Read uplink counter */
     uint32_t ul_counter;
+    #ifdef MODULE_PERIPH_RTC_MEM
+    rtc_mem_read(SEMTECH_LORAMAC_RTC_MEM_OFFSET, &ul_counter, sizeof(ul_counter));
+    #else
     pos += _read_uint32(pos, &ul_counter);
     semtech_loramac_set_uplink_counter(mac, ul_counter);
+    #endif
 
     /* Read RX2 freq */
     uint32_t rx2_freq;
@@ -272,12 +282,6 @@ static inline void _read_loramac_config(semtech_loramac_t *mac)
 
 static inline size_t _save_uplink_counter(semtech_loramac_t *mac)
 {
-    size_t pos = SEMTECH_LORAMAC_EEPROM_START +
-                 SEMTECH_LORAMAC_EEPROM_MAGIC_LEN +
-                 LORAMAC_DEVEUI_LEN + LORAMAC_APPEUI_LEN +
-                 LORAMAC_APPKEY_LEN + LORAMAC_APPSKEY_LEN +
-                 LORAMAC_NWKSKEY_LEN + LORAMAC_DEVADDR_LEN;
-
     uint32_t ul_counter;
     mutex_lock(&mac->lock);
     MibRequestConfirm_t mibReq;
@@ -286,7 +290,20 @@ static inline size_t _save_uplink_counter(semtech_loramac_t *mac)
     ul_counter = mibReq.Param.UpLinkCounter;
     mutex_unlock(&mac->lock);
     DEBUG("[semtech-loramac] saving uplink counter: %" PRIu32 " \n", ul_counter);
+    #ifdef MODULE_PERIPH_RTC_MEM
+    rtc_mem_write(SEMTECH_LORAMAC_RTC_MEM_OFFSET, &ul_counter, sizeof(ul_counter));
+    return 0;
+    #else
+    size_t pos = SEMTECH_LORAMAC_EEPROM_START +
+                SEMTECH_LORAMAC_EEPROM_MAGIC_LEN +
+                LORAMAC_DEVEUI_LEN + LORAMAC_APPEUI_LEN +
+                LORAMAC_APPKEY_LEN + LORAMAC_APPSKEY_LEN +
+                LORAMAC_NWKSKEY_LEN + LORAMAC_DEVADDR_LEN;
+
     return _write_uint32(pos, ul_counter);
+    #endif
+
+    
 }
 
 void semtech_loramac_save_config(semtech_loramac_t *mac)
@@ -342,8 +359,9 @@ void semtech_loramac_erase_config(void)
         DEBUG("[semtech-loramac] no configuration present on EEPROM\n");
         return;
     }
-
+    #ifndef MODULE_PERIPH_RTC_MEM // only erase if not using RTC memory
     size_t uplink_counter_len = sizeof(uint32_t);
+    #endif
     size_t rx2_freq_len = sizeof(uint32_t);
     size_t rx2_dr_len = sizeof(uint8_t);
     size_t joined_state_len = sizeof(uint8_t);
@@ -352,7 +370,10 @@ void semtech_loramac_erase_config(void)
                   LORAMAC_DEVEUI_LEN + LORAMAC_APPEUI_LEN +
                   LORAMAC_APPKEY_LEN + LORAMAC_APPSKEY_LEN +
                   LORAMAC_NWKSKEY_LEN + LORAMAC_DEVADDR_LEN +
-                  uplink_counter_len + rx2_freq_len + rx2_dr_len +
+                  #ifndef MODULE_PERIPH_RTC_MEM
+                  uplink_counter_len +
+                  #endif
+                  rx2_freq_len + rx2_dr_len +
                   joined_state_len);
     for (size_t p = pos; p < end; p++) {
         eeprom_write_byte(p, 0);
