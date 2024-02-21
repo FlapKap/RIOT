@@ -23,7 +23,7 @@ USEMODULE += auto_init_loramac
 USEMODULE += shell_cmds_default
 USEMODULE += fmt
 
-FEATURES_OPTIONAL += periph_eeprom
+FEATURES_OPTIONAL += periph_eeprom periph_rtc_mem
 
 # Default IotLab Config to run the test
 ifneq (,$(filter iotlab%,$(MAKECMDGOALS)))
