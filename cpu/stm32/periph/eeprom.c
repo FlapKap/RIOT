@@ -95,7 +95,7 @@ size_t eeprom_read(uint32_t pos, void *data, size_t len)
     for (size_t i = 0; i < len; i++) {
         _wait_for_pending_operations();
         *p++ = *(__IO uint8_t *)(EEPROM_START_ADDR + pos++);
-        DEBUG("0x%02X ", *p);
+        DEBUG("0x%02X ", *(p-1));
     }
     DEBUG("\n");
 
@@ -109,11 +109,12 @@ size_t eeprom_write(uint32_t pos, const void *data, size_t len)
     uint8_t *p = (uint8_t *)data;
 
     _unlock();
-
+    DEBUG("Writing data to EEPROM at pos %" PRIu32 ": ", pos);
     for (size_t i = 0; i < len; i++) {
         _write_byte((EEPROM_START_ADDR + pos++), *p++);
+        DEBUG("0x%02X ", *(p-1));
     }
-
+    DEBUG("\n");
     _lock();
 
     return len;
