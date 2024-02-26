@@ -23,9 +23,14 @@ The text and items below are tentative, up for discussion, to be updated by regu
 - Point-to-Point Protocol (PPP): finalize and merge `gnrc_ppp`
 
 
+# Integrations
+(contact/steering: [Teufelchen](https://github.com/teufelchen1))
+
+- [Home-Assistant](https://www.home-assistant.io/) BTHome integration
+- [Home-Assistant](https://www.home-assistant.io/) integration via [MQTT Discovery](https://www.home-assistant.io/integrations/mqtt#mqtt-discovery)
 
 # Power Modes
-(contact/steering: [Hauke](https://github.com/haukepetersen))
+(contact/steering: [benpicco](https://github.com/benpicco))
 
 - concept to fix shell usage issue while LPM activated
 - integrate generic power management functions in device driver APIs (netdev, SAUL, ...)
@@ -35,7 +40,7 @@ The text and items below are tentative, up for discussion, to be updated by regu
 
 
 # Peripheral drivers
-(contact/steering: [Hauke](https://github.com/haukepetersen))
+(contact/steering: [maribu](https://github.com/maribu))
 
 ## Timers
 
