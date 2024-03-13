@@ -429,3 +429,29 @@ void semtech_loramac_get_channels_mask(semtech_loramac_t *mac, uint16_t *mask)
     memcpy(mask, mibReq.Param.ChannelsMask, LORAMAC_CHANNELS_MASK_LEN);
     mutex_unlock(&mac->lock);
 }
+
+bool semtech_loramac_get_join_state(semtech_loramac_t *mac)
+{
+    mutex_lock(&mac->lock);
+    MibRequestConfirm_t mibReq;
+
+    mibReq.Type = MIB_NETWORK_JOINED;
+    LoRaMacMibGetRequestConfirm(&mibReq);
+    bool joined = mibReq.Param.IsNetworkJoined;
+
+    mutex_unlock(&mac->lock);
+    return joined;
+}
+
+void semtech_loramac_set_join_state(semtech_loramac_t *mac, bool joined)
+{
+    DEBUG("[semtech-loramac] set join state ? %d\n", joined);
+
+    mutex_lock(&mac->lock);
+    MibRequestConfirm_t mibReq;
+
+    mibReq.Type = MIB_NETWORK_JOINED;
+    mibReq.Param.IsNetworkJoined = joined;
+    LoRaMacMibSetRequestConfirm(&mibReq);
+    mutex_unlock(&mac->lock);
+}

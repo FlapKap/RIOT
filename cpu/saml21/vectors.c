@@ -61,6 +61,8 @@ WEAK_DEFAULT void isr_ptc(void);
 WEAK_DEFAULT void isr_aes(void);
 WEAK_DEFAULT void isr_trng(void);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 /* CPU specific interrupt vector table */
 ISR_VECTOR(1) const isr_t vector_cpu[CPU_IRQ_NUMOF] = {
     (void*) isr_pm,                 /*  0 Power Manager */
@@ -92,3 +94,4 @@ ISR_VECTOR(1) const isr_t vector_cpu[CPU_IRQ_NUMOF] = {
     (void*) isr_aes,                /* 26 AES */
     (void*) isr_trng,               /* 27 TRNG True Random Number Generator */
 };
+#pragma GCC diagnostic pop
