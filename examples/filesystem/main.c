@@ -131,8 +131,10 @@ static vfs_mount_t const_mount = {
     .private_data = &constfs_desc,
 };
 
+
+
 int main(void)
-{
+{   
     int res = vfs_mount(&const_mount);
     if (res < 0) {
         puts("Error while mounting constfs");
@@ -140,6 +142,8 @@ int main(void)
     else {
         puts("constfs mounted successfully");
     }
+
+
 
     char line_buf[SHELL_DEFAULT_BUFSIZE];
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);

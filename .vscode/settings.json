@@ -7,7 +7,11 @@
     "files.insertFinalNewline": true,
     "files.associations": {
         "Makefile.*": "makefile",
-        "*.mk": "makefile"
+        "*.mk": "makefile",
+        "flashpage.h": "c",
+        "mtd.h": "c",
+        "stm32l0xx.h": "c",
+        "stm32l072xx.h": "c"
     },
     "[shellscript][c][cpp]": {
         "editor.tabSize": 4,
@@ -17,4 +21,5 @@
         "editor.tabSize": 2,
         "editor.insertSpaces": true,
     },
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
 }

@@ -16,13 +16,14 @@
 #include "vfs_default.h"
 #else
 #include "mtd.h"
+#include "mtd_flashpage.h"
 #endif
 
 /**
  * @brief Select MTD device to use for FlashDB
  */
 #if !defined(FDB_MTD)
-#define FDB_MTD FAL_MTD
+#define FDB_MTD mtd_aux
 #endif
 
 #define FDB_LOG_TAG "[main]"

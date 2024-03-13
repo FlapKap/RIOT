@@ -18,16 +18,22 @@ DEVELHELP ?= 1
 
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
-
+SLOT_AUX_LEN := 0x8000
 # Modules to include:
 USEMODULE += shell
 USEMODULE += shell_cmds_default
 USEMODULE += ps
 
 # Use the default file system
+USEMODULE += littlefs2
 USEMODULE += vfs_default
 USEMODULE += constfs
+
 # USEMODULE += devfs
+
+USEMODULE += mtd_flashpage
+
+
 
 # Enable to automatically format if mount fails
 #USEMODULE += vfs_auto_format

@@ -1,5 +1,8 @@
 include ../Makefile.pkg_common
 
+USEMODULE += mtd_flashpage
+SLOT_AUX_LEN := 0x8000
+
 # select the MTD backend
 USEMODULE += flashdb_mtd
 # enable key-value database
