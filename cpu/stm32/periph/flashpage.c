@@ -279,7 +279,7 @@ void flashpage_write(void *target_addr, const void *data, size_t len)
     CNTRL_REG |= FLASH_CR_PG;
 #endif
     for (size_t i = 0; i < (len / sizeof(stm32_flashpage_block_t)); i++) {
-        DEBUG("[flashpage_raw] writing %c to %p\n", (char)data_addr[i], dst);
+        DEBUG("[flashpage_raw] writing %c to %p\n", (char)data_addr[i],(void*) dst);
         *dst++ = data_addr[i];
 #if defined(CPU_FAM_STM32F7)
         __DMB();

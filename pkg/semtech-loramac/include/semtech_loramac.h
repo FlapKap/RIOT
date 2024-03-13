@@ -212,6 +212,11 @@ uint8_t semtech_loramac_recv(semtech_loramac_t *mac);
  */
 bool semtech_loramac_is_mac_joined(semtech_loramac_t *mac);
 
+
+bool semtech_loramac_get_join_state(semtech_loramac_t *mac);
+
+void semtech_loramac_set_join_state(semtech_loramac_t *mac, bool joined);
+
 #if defined(MODULE_SEMTECH_LORAMAC_RX) || DOXYGEN
 /**
  * @brief   Requests a LoRaWAN link check
