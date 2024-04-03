@@ -54,6 +54,11 @@
 #define EXTI_REG_FTSR       (EXTI->FTSR1)
 #define EXTI_REG_PR         (EXTI->RPR1)
 #define EXTI_REG_IMR        (EXTI->IMR1)
+#elif defined(CPU_FAM_STM32WL)
+#define EXTI_REG_RTSR       (EXTI->RTSR1)
+#define EXTI_REG_FTSR       (EXTI->FTSR1)
+#define EXTI_REG_PR         (EXTI->PR1)
+#define EXTI_REG_IMR        (EXTI->IMR1)
 #elif defined(CPU_FAM_STM32L5)
 #define EXTI_REG_IMR        (EXTI->IMR1)
 #else
@@ -73,7 +78,7 @@
 #define RTC_ISR_INITF       RTC_ICSR_INITF
 #define RTC_ISR_ALRAWF      RTC_ICSR_ALRAWF
 #define RTC_ISR_ALRAF       RTC_SR_ALRAF
-#elif defined(CPU_FAM_STM32L5)
+#elif defined(CPU_FAM_STM32L5)  || defined(CPU_FAM_STM32WL)
 #define RTC_REG_ISR         RTC->ICSR
 #define RTC_REG_SR          RTC->SR
 #define RTC_REG_SCR         RTC->SCR
@@ -123,6 +128,11 @@
 #define EXTI_FTSR_BIT       (EXTI_FTSR1_FT11)
 #define EXTI_RTSR_BIT       (EXTI_RTSR1_RT11)
 #define EXTI_PR_BIT         (EXTI_RPR1_RPIF11)
+#elif defined(CPU_FAM_STM32WL)
+#define EXTI_IMR_BIT        (EXTI_IMR1_IM11)
+#define EXTI_FTSR_BIT       (EXTI_FTSR1_FT11)
+#define EXTI_RTSR_BIT       (EXTI_RTSR1_RT11)
+#define EXTI_PR_BIT         (EXTI_PR1_PIF11)
 #else
 #if defined(CPU_FAM_STM32L0)
 #define EXTI_IMR_BIT        (EXTI_IMR_IM17)
@@ -274,7 +284,7 @@ void rtc_init(void)
 
     /* select input clock and enable the RTC */
     stmclk_dbp_unlock();
-#if defined(CPU_FAM_STM32L5)
+#if defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32WL)
     periph_clk_en(APB1, RCC_APB1ENR1_RTCAPBEN);
 #elif defined(CPU_FAM_STM32G0)
     periph_clk_en(APB1, RCC_APBENR1_RTCAPBEN);
@@ -363,7 +373,7 @@ int rtc_set_alarm(struct tm *time, rtc_alarm_cb_t cb, void *arg)
                    val2bcd(time->tm_sec,  RTC_ALRMAR_SU_Pos, ALRM_S_MASK));
 
     /* Enable Alarm A */
-#if !defined(CPU_FAM_STM32L5)
+#if !defined(CPU_FAM_STM32L5) && !defined(CPU_FAM_STM32WL)
     RTC_REG_ISR &= ~(RTC_ISR_ALRAF);
 #else
     RTC_REG_SCR = RTC_SCR_CALRAF;
@@ -396,7 +406,7 @@ void rtc_clear_alarm(void)
 
     RTC->CR &= ~(RTC_CR_ALRAE | RTC_CR_ALRAIE);
 
-#if !defined(CPU_FAM_STM32L5) && !defined(CPU_FAM_STM32U5)
+#if !defined(CPU_FAM_STM32L5) && !defined(CPU_FAM_STM32U5) && !defined(CPU_FAM_STM32WL)
     while (!(RTC_REG_ISR & RTC_ISR_ALRAWF)) {}
 #else
     RTC_REG_SCR = RTC_SCR_CALRAF;
@@ -424,7 +434,7 @@ void rtc_poweroff(void)
 
 void ISR_NAME(void)
 {
-#if !defined(CPU_FAM_STM32L5) && !defined(CPU_FAM_STM32G0) && !defined(CPU_FAM_STM32U5)
+#if !defined(CPU_FAM_STM32L5) && !defined(CPU_FAM_STM32G0) && !defined(CPU_FAM_STM32U5) && !defined(CPU_FAM_STM32WL)
     if (RTC_REG_ISR & RTC_ISR_ALRAF) {
         if (isr_ctx.cb != NULL) {
             isr_ctx.cb(isr_ctx.arg);
