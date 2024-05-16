@@ -60,6 +60,9 @@ typedef struct {
     coap_blockwise_cb_t callback;
     void *arg;
     bool more;
+#if CONFIG_NANOCOAP_SOCK_BLOCK_TOKEN
+    uint8_t token[4];
+#endif
 } _block_ctx_t;
 
 int nanocoap_sock_dtls_connect(nanocoap_sock_t *sock, sock_udp_ep_t *local,
@@ -189,8 +192,8 @@ ssize_t nanocoap_sock_request_cb(nanocoap_sock_t *sock, coap_pkt_t *pkt,
     uint8_t state = STATE_REQUEST_SEND;
 
     /* random timeout, deadline for receive retries */
-    uint32_t timeout = random_uint32_range(CONFIG_COAP_ACK_TIMEOUT_MS * US_PER_MS,
-                                           CONFIG_COAP_ACK_TIMEOUT_MS * CONFIG_COAP_RANDOM_FACTOR_1000);
+    uint32_t timeout = random_uint32_range((uint32_t)CONFIG_COAP_ACK_TIMEOUT_MS * US_PER_MS,
+                                           (uint32_t)CONFIG_COAP_ACK_TIMEOUT_MS * CONFIG_COAP_RANDOM_FACTOR_1000);
     uint32_t deadline = _deadline_from_interval(timeout);
 
     /* check if we expect a reply */
@@ -601,7 +604,17 @@ static int _fetch_block(nanocoap_sock_t *sock, uint8_t *buf, size_t len,
     };
     uint16_t lastonum = 0;
 
-    buf += coap_build_hdr(pkt.hdr, COAP_TYPE_CON, NULL, 0, COAP_METHOD_GET,
+    void *token = NULL;
+    size_t token_len = 0;
+
+#if CONFIG_NANOCOAP_SOCK_BLOCK_TOKEN
+    /* HACK: go-coap always expects a token */
+    /* see https://github.com/plgd-dev/go-coap/issues/512 */
+    token = ctx->token;
+    token_len = sizeof(ctx->token);
+#endif
+
+    buf += coap_build_hdr(pkt.hdr, COAP_TYPE_CON, token, token_len, COAP_METHOD_GET,
                           nanocoap_sock_next_msg_id(sock));
     buf += coap_opt_put_uri_pathquery(buf, &lastonum, path);
     buf += coap_opt_put_uint(buf, lastonum, COAP_OPT_BLOCK2, (num << 4) | blksize);
@@ -674,6 +687,10 @@ int nanocoap_sock_get_blockwise(nanocoap_sock_t *sock, const char *path,
         .more = true,
     };
 
+#if CONFIG_NANOCOAP_SOCK_BLOCK_TOKEN
+    random_bytes(ctx.token, sizeof(ctx.token));
+#endif
+
     unsigned num = 0;
     while (ctx.more) {
         DEBUG("nanocoap: fetching block %u\n", num);
@@ -722,9 +739,9 @@ int nanocoap_sock_url_connect(const char *url, nanocoap_sock_t *sock)
     }
 
     if (is_coaps) {
-
+#if SOCK_HAS_IPV6
         /* tinydtls wants the interface to match */
-        if (!remote.netif &&
+        if (!remote.netif && sock_udp_ep_is_v6(&remote) &&
             ipv6_addr_is_link_local((ipv6_addr_t *)remote.addr.ipv6)) {
             netif_t *iface = netif_iter(NULL);
             if (iface == NULL) {
@@ -734,6 +751,12 @@ int nanocoap_sock_url_connect(const char *url, nanocoap_sock_t *sock)
         }
 
         sock_udp_ep_t local = SOCK_IPV6_EP_ANY;
+        if (!sock_udp_ep_is_v6(&remote)) {
+            local.family = AF_INET;
+        }
+#else
+        sock_udp_ep_t local = SOCK_IPV4_EP_ANY;
+#endif
         return nanocoap_sock_dtls_connect(sock, &local, &remote, CONFIG_NANOCOAP_SOCK_DTLS_TAG);
     } else {
         return nanocoap_sock_connect(sock, NULL, &remote);

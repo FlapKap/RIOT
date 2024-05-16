@@ -54,14 +54,6 @@
 #define VFS_H
 
 #include <stdint.h>
-/* The stdatomic.h in GCC gives compilation errors with C++
- * see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932
- */
-#ifdef __cplusplus
-#include "c11_atomics_compat.hpp"
-#else
-#include <stdatomic.h> /* for atomic_int */
-#endif
 #include <sys/stat.h> /* for struct stat */
 #include <sys/types.h> /* for off_t etc. */
 #include <sys/statvfs.h> /* for struct statvfs */
@@ -122,7 +114,7 @@ extern "C" {
 #  endif
 
 #  if FF_FS_EXFAT
-#    define _FATFS_FILE_EXFAT              (44)
+#    define _FATFS_FILE_EXFAT              (48)
 #    define _FATFS_DIR_EXFAT               (32)
 #  else
 #    define _FATFS_FILE_EXFAT              (0)
@@ -383,7 +375,7 @@ struct vfs_mount_struct {
     const vfs_file_system_t *fs; /**< The file system driver for the mount point */
     const char *mount_point;     /**< Mount point, e.g. "/mnt/cdrom" */
     size_t mount_point_len;      /**< Length of mount_point string (set by vfs_mount) */
-    atomic_int open_files;       /**< Number of currently open files and directories */
+    uint16_t open_files;         /**< Number of currently open files and directories */
     void *private_data;          /**< File system driver private data, implementation defined */
 };
 
@@ -848,6 +840,20 @@ int vfs_open(const char *name, int flags, mode_t mode);
  * vfs_file_to_buffer function can be used.
  */
 ssize_t vfs_read(int fd, void *dest, size_t count);
+
+/**
+ * @brief Read a line from an open text file
+ *
+ * Reads from a file until a `\r` or `\n` character is found.
+ *
+ * @param[in]  fd       fd number obtained from vfs_open
+ * @param[out] dest     destination buffer to hold the line
+ * @param[in]  count    maximum number of characters to read
+ *
+ * @return number of bytes read on success
+ * @return <0 on error
+ */
+ssize_t vfs_readline(int fd, char *dest, size_t count);
 
 /**
  * @brief Write bytes to an open file

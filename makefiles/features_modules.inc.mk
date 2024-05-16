@@ -59,6 +59,9 @@ DEFAULT_MODULE += $(PERIPH_INIT_MODULES)
 # select cpu_check_address pseudomodule if the corresponding feature is used
 USEMODULE += $(filter cpu_check_address, $(FEATURES_USED))
 
+# select can_rx_mailbox pseudomodule if the corresponding feature is used
+USEMODULE += $(filter can_rx_mailbox, $(FEATURES_USED))
+
 # select bootloader_stm32 module if the feature is used
 USEMODULE += $(filter bootloader_stm32, $(FEATURES_USED))
 
@@ -74,6 +77,10 @@ endif
 ifneq (,$(filter periph_rtc,$(USEMODULE)))
   USEMODULE += rtc_utils
 endif
+
+# select cortexm_stack_limit pseudomodule if the corresponding
+# feature is used
+USEMODULE += $(filter cortexm_stack_limit, $(FEATURES_USED))
 
 # select cortexm_svc pseudomodule if the corresponding feature is used
 USEMODULE += $(filter cortexm_svc, $(FEATURES_USED))

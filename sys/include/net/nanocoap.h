@@ -500,6 +500,18 @@ static inline unsigned coap_get_code_raw(const coap_pkt_t *pkt)
 }
 
 /**
+ * @brief   Get a request's method type
+ *
+ * @param[in]   pkt   CoAP request packet
+ *
+ * @returns     request method type
+ */
+static inline coap_method_t coap_get_method(const coap_pkt_t *pkt)
+{
+    return pkt->hdr->code;
+}
+
+/**
  * @brief   Get the message ID of the given CoAP packet
  *
  * @param[in]   pkt   CoAP packet
@@ -1923,7 +1935,7 @@ ssize_t coap_block2_build_reply(coap_pkt_t *pkt, unsigned code,
  *
  * @returns      length of resulting header
  */
-ssize_t coap_build_hdr(coap_hdr_t *hdr, unsigned type, uint8_t *token,
+ssize_t coap_build_hdr(coap_hdr_t *hdr, unsigned type, const void *token,
                        size_t token_len, unsigned code, uint16_t id);
 
 /**

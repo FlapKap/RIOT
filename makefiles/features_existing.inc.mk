@@ -43,10 +43,13 @@ FEATURES_EXISTING := \
     ble_phy_2mbit \
     ble_phy_coded \
     bootloader_stm32 \
+    can_rx_mailbox \
     cortexm_fpu \
     cortexm_mpu \
+    cortexm_stack_limit \
     cortexm_svc \
     cpp \
+    cpu_arm7tdmi_gba \
     cpu_atmega1281 \
     cpu_atmega1284p \
     cpu_atmega128rfa1 \
